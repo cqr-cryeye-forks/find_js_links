@@ -48,7 +48,8 @@ class LinkScraper:
         self.results: Types.RESULTS = [u for u in self.results if u['js_links']]
 
     def _set_all_common_js_links(self) -> None:
-        self.results.append({'url': 'root', 'js_links': self._get_intersection_js_links})
+        if self.results:
+            self.results.append({'url': 'root', 'js_links': self._get_intersection_js_links})
 
     def _clean_js_links_from_common(self) -> None:
         root_index = self._get_root_index
