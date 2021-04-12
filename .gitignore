@@ -310,6 +310,7 @@ Thumbs.db
 .prof
 
 ### Custom ###
+poetry.lock
 input.txt
 result.json
 

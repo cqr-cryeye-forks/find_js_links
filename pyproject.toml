@@ -6,6 +6,9 @@ authors = ["jffin <yougetthat.f@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+aiohttp = "^3.7.4"
+yarl = "^1.6.3"
+bs4 = "^0.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
