@@ -9,6 +9,7 @@ python = "^3.9"
 aiohttp = "^3.7.4"
 yarl = "^1.6.3"
 bs4 = "^0.0.1"
+lxml = "^4.6.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
