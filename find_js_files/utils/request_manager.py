@@ -10,7 +10,7 @@ from asyncio import BoundedSemaphore
 from asyncio.exceptions import TimeoutError
 
 from aiohttp import ClientSession, ClientTimeout, InvalidURL, \
-    ClientConnectorError, ClientResponseError, ServerTimeoutError, TCPConnector
+    ClientConnectorError, ClientResponseError, ServerTimeoutError, TCPConnector, ServerDisconnectedError
 
 from .constants import Config, Types
 
@@ -53,7 +53,10 @@ class RequestManager:
                             'status_code': response.status,
                             'body': await response.text(),
                         })
-                except (ClientConnectorError, ClientResponseError, ServerTimeoutError, TimeoutError, InvalidURL) as e:
+                except (
+                        ClientConnectorError, ClientResponseError, ServerTimeoutError,
+                        TimeoutError, InvalidURL, ServerDisconnectedError
+                ) as e:
                     attempts = Config.LIMIT_OF_ATTEMPTS_TO_RETRY - left_of_attempts_to_retry + \
                                Config.REQUESTS_RETRIES_NUM_TO_REMOVE
                     logging.exception(f'Failed attempt num: {attempts} Error: {e}')
