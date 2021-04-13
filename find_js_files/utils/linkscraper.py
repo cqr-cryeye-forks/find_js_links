@@ -22,6 +22,7 @@ class LinkScraper:
     _exclude_extensions: Tuple[str] = (
         '.css', '.png', '.jpeg', '.jpg', '.svg', '.gif',
         '.wolf', '.woff', '.woff2', '.eot', '.ttf', '.ico',
+        '.tn', '.swf',
     )
 
     def __init__(self, urls: Iterator[str]) -> None:
