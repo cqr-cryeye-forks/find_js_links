@@ -21,7 +21,7 @@ class LinkScraper:
     _include_extensions: Tuple[str] = ('.js',)
     _exclude_extensions: Tuple[str] = (
         '.css', '.png', '.jpeg', '.jpg', '.svg', '.gif',
-        '.wolf', '.woff', '.woff2', '.eot', '.ttl', '.ico',
+        '.wolf', '.woff', '.woff2', '.eot', '.ttf', '.ico',
     )
 
     def __init__(self, urls: Iterator[str]) -> None:
@@ -98,7 +98,7 @@ class LinkScraper:
         return next(iter(index for index, result in enumerate(self.results) if result['url'] == 'root'), None)
 
     @property
-    def _get_intersection_js_links(self) -> Set[set]:
+    def _get_intersection_js_links(self) -> Set[str]:
         return set.intersection(*self._all_js_links)
 
     @property

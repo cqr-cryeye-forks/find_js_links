@@ -66,6 +66,8 @@ class RequestManager:
                         })
                     else:
                         continue
+                except UnicodeDecodeError:
+                    continue
                 else:
                     logging.log(
                         logging.DEBUG,

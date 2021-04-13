@@ -65,9 +65,8 @@ def cli() -> argparse.Namespace:
 
 
 def get_input() -> Iterator[str]:
-    # return map(lambda u: u.strip('\n'), open('../input.txt', 'r').readlines())
-    if not select.select([sys.stdin, ], [], [], 0.0)[0]:
-        raise ValueError('stdin can\'t be empty')
+    # if not select.select([sys.stdin, ], [], [], 0.0)[0]:
+    #     raise ValueError('stdin can\'t be empty')
     return map(lambda u: u.strip('\n'), sys.stdin.readlines())
 
 
