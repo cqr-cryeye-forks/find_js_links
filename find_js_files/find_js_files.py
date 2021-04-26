@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 
+"""
+Entrypoint to script.
+The main goal of the script to gather js links
+from set of urls.
+It uses BeautifulSoup to extract links from html
+"""
+
 import sys
 import json
-import select
 import logging
 
 import asyncio
@@ -12,22 +18,34 @@ from time import time
 from typing import NamedTuple, Iterator
 
 from utils.constants import Config, Types
-from utils.linkscraper import LinkScraper
+from utils.link_scraper_facade import LinkScraperFacade
 from utils.logger_formatter import OneLineExceptionFormatter
 
 
 class RunConfig(NamedTuple):
+    """
+    Run Config for script args
+    """
     verbose: bool = Config.DEFAULT_DEBUGGING
     output: str = Config.RESULT_FILE_NAME
 
 
 def write_results_to_file(results: Types.ASYNCIO_GATHER) -> None:
+    """
+    Method to save results in json into a file
+    :param results:
+    """
     with open(Config.RESULT_FILE_NAME, 'w') as file:
         file.write(to_json_serializable(results))
     logging.log(logging.DEBUG, f'Wrote results to file with name: {Config.RESULT_FILE_NAME}')
 
 
 def to_json_serializable(results: Types.ASYNCIO_GATHER) -> Types.JSON_RESULTS:
+    """
+    Method to make results json serializable and reverse results
+    :param results: Types.ASYNCIO_GATHER - results
+    :return: Types.JSON_RESULTS - results in json
+    """
     for index, result in enumerate(results):
         for i, r in result.items():
             if type(r) == set:
@@ -65,12 +83,19 @@ def cli() -> argparse.Namespace:
 
 
 def get_input() -> Iterator[str]:
+    """
+    Get input from stdin
+    :return: Iterator[str] - line by line
+    """
     # if not select.select([sys.stdin, ], [], [], 0.0)[0]:
     #     raise ValueError('stdin can\'t be empty')
     return map(lambda u: u.strip('\n'), sys.stdin.readlines())
 
 
 async def main() -> None:
+    """
+    Entrypoint to run program
+    """
     args: argparse.Namespace = cli()
     config: RunConfig = define_config_from_cmd(args)
 
@@ -78,9 +103,8 @@ async def main() -> None:
     logging.log(logging.DEBUG, 'Main Started')
 
     urls: Iterator[str] = get_input()
-    # logging.log(logging.DEBUG, f'Got {len(urls)}')
 
-    results: Types.RESULTS = await LinkScraper.get_js_files(urls=urls)
+    results: Types.RESULTS = await LinkScraperFacade.get_js_files(urls=urls)
     write_results_to_file(results)
 
 

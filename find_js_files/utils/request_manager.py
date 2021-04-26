@@ -1,3 +1,7 @@
+"""
+Request manager module
+"""
+
 import asyncio
 import logging
 
@@ -18,24 +22,32 @@ from .constants import Config, Types
 
 @dataclass
 class RequestManager:
+    """
+    Request Manager to make request to targets urls
+    """
     _urls: List[URL]
     _timeout: ClientTimeout
     _session: ClientSession
     _semaphore: BoundedSemaphore
-    _headers: Dict[str, str]
     _failed_requests_num: int = field(default=0)
 
+    # _headers: Dict[str, str] = field(default_factory={'User-agent': Config.USER_AGENT})
+
     def __init__(self, urls: Set[str], timeout: int = Config.TIMEOUT_DEFAULT):
-        self._urls = [URL(url) for url in urls]
-        self._timeout = ClientTimeout(total=timeout)
-        self._session = ClientSession(timeout=self.timeout, connector=TCPConnector(ssl=False))
-        self._semaphore = asyncio.BoundedSemaphore(Config.SIMULTANEOUS_CONCURRENT_TASKS)
-        self._headers = {'User-agent': Config.USER_AGENT}
+        self._urls: List[URL] = [URL(url) for url in urls]
+        self._timeout: ClientTimeout = ClientTimeout(total=timeout)
+        self._session: ClientSession = ClientSession(timeout=self.timeout, connector=TCPConnector(ssl=False))
+        self._semaphore: asyncio.BoundedSemaphore = asyncio.BoundedSemaphore(Config.SIMULTANEOUS_CONCURRENT_TASKS)
+        self._headers: Dict[str, str] = {'User-agent': Config.USER_AGENT}
 
     @classmethod
-    async def create_make_requests(cls, urls: Set[str], timeout: int = Config.TIMEOUT_DEFAULT) \
-            -> Types.ASYNCIO_GATHER:
-
+    async def create_make_requests(cls, urls: Set[str], timeout: int = Config.TIMEOUT_DEFAULT) -> Types.ASYNCIO_GATHER:
+        """
+        Class method to make requests
+        :param urls: - Set[str] - set of urls
+        :param timeout: int
+        :return: Types.ASYNCIO_GATHER - request of the requests
+        """
         obj: RequestManager = cls(urls=urls, timeout=timeout)
         logging.log(logging.DEBUG, f'{obj.__class__} created')
         results = await obj.make_requests()
@@ -43,9 +55,17 @@ class RequestManager:
         return results
 
     async def _fetch(self, url: URL, session: ClientSession) -> Dict[str, Union[str, int]]:
+        """
+        Method to perform requests
+        With retry functionality
+        :return: Dict[str, Union[str, int]] - dictionary with results
+        """
         logging.log(logging.DEBUG, f'Request to url: "{url}" stated')
         async with self.semaphore:
-            result: Dict[str, str] = {'url': str(url), 'error': '', 'body': '', }
+            result: Dict[str, Union[str, int]] = {
+                'url': str(url), 'error': '', 'body': '',
+                'status_code': Config.STATUS_CODE_DEFAULT,
+            }
             left_of_attempts_to_retry: int = Config.LIMIT_OF_ATTEMPTS_TO_RETRY
             while left_of_attempts_to_retry:
                 try:
@@ -64,14 +84,11 @@ class RequestManager:
                     left_of_attempts_to_retry -= Config.REQUESTS_RETRIES_NUM_TO_REMOVE
                     self.failed_requests_num = Config.REQUESTS_RETRIES_NUM_TO_REMOVE
                     if not left_of_attempts_to_retry:
-                        result.update({
-                            'status_code': Config.STATUS_CODE_DEFAULT,
-                            'error': e and str(e) or 'Something Went Wrong',
-                        })
+                        result.update({'error': e and str(e) or 'Something Went Wrong', })
                     else:
                         continue
                 except UnicodeDecodeError:
-                    continue
+                    break
                 else:
                     logging.log(
                         logging.DEBUG,
@@ -80,6 +97,10 @@ class RequestManager:
             return result
 
     async def make_requests(self) -> Types.ASYNCIO_GATHER:
+        """
+        Method to create coroutines with asyncio
+        :return: Types.ASYNCIO_GATHER - request's coroutines
+        """
         async with self.session as session:
             return await asyncio.gather(*[
                 asyncio.create_task(
@@ -89,26 +110,52 @@ class RequestManager:
 
     @property
     def urls(self) -> List[URL]:
+        """
+        Getter for urls property
+        :return: List[URL]
+        """
         return self._urls
 
     @property
     def timeout(self) -> ClientTimeout:
+        """
+        Getter for timeout property for Client timeout
+        :return: ClientTimeout
+        """
         return self._timeout
 
     @property
     def session(self) -> ClientSession:
+        """
+        Getter for Client Session property
+        :return: ClientSession
+        """
         return self._session
 
     @property
     def semaphore(self) -> BoundedSemaphore:
+        """
+        Getter for BoundSemaphore property
+        :return: BoundedSemaphore
+        """
         return self._semaphore
 
     @property
     def headers(self) -> Dict[str, str]:
+        """
+        Getter for dictionary with headers
+        :return: Dict[str, str]
+        """
         return self._headers
 
     @property
     def failed_requests_num(self) -> int:
+        """
+        Getter for failed requests num
+        How many times requests can fail
+        before move to the next
+        :return: int
+        """
         return self._failed_requests_num
 
     @failed_requests_num.setter

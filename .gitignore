@@ -312,6 +312,9 @@ Thumbs.db
 ### Custom ###
 poetry.lock
 input.txt
+input.feel.txt
+output.test.txt
+output.results.txt
 result.json
 
 
