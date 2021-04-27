@@ -36,7 +36,7 @@ class Types:
     RESULTS: Type = List[Dict[str, Union[str, List[str], Set[str]]]]
     JSON_RESULTS: Type = List[Dict[str, Union[str, List[str]]]]
 
-    EXC_INFO: Type = Union[Tuple[type, BaseException, Optional[TracebackType]], tuple[None, None, None]]
+    EXC_INFO: Type = Union  # [Tuple[type, BaseException, Optional[TracebackType]], tuple[None, None, None]]
 
     ASYNCIO_GATHER: Type = Tuple[
         Union[BaseException, Any], Union[BaseException, Any],
