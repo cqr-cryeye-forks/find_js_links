@@ -104,7 +104,7 @@ class ResultsCleaner:
     @cached_property
     def _get_root_url_from_links(self) -> str:
         parsed_url = urlparse(url=next(iter(self.results))['url'])
-        return f'{parsed_url.scheme}//{parsed_url.netloc}'
+        return f'{parsed_url.scheme}://{parsed_url.netloc}'
 
     @property
     def results(self) -> Types.RESULTS:
